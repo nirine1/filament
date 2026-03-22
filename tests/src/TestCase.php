@@ -21,6 +21,7 @@ use Filament\Tests\Fixtures\Policies\DepartmentPolicy;
 use Filament\Tests\Fixtures\Policies\TicketPolicy;
 use Filament\Tests\Fixtures\Providers\AdminPanelProvider;
 use Filament\Tests\Fixtures\Providers\AppAuthenticationPanelProvider;
+use Filament\Tests\Fixtures\Providers\ConfigurationPanelProvider;
 use Filament\Tests\Fixtures\Providers\CustomPanelProvider;
 use Filament\Tests\Fixtures\Providers\DomainTenancyPanelProvider;
 use Filament\Tests\Fixtures\Providers\EmailAuthenticationPanelProvider;
@@ -38,7 +39,6 @@ use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use PDO;
 use PDOException;
-use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -49,7 +49,6 @@ abstract class TestCase extends BaseTestCase
     {
         $providers = [
             ActionsServiceProvider::class,
-            BladeCaptureDirectiveServiceProvider::class,
             BladeHeroiconsServiceProvider::class,
             BladeIconsServiceProvider::class,
             FilamentServiceProvider::class,
@@ -64,6 +63,7 @@ abstract class TestCase extends BaseTestCase
             TablesServiceProvider::class,
             WidgetsServiceProvider::class,
             AdminPanelProvider::class,
+            ConfigurationPanelProvider::class,
             CustomPanelProvider::class,
             EmailAuthenticationPanelProvider::class,
             AppAuthenticationPanelProvider::class,

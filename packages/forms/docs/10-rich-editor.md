@@ -61,7 +61,8 @@ use Filament\Forms\Components\RichEditor;
 RichEditor::make('content')
     ->toolbarButtons([
         ['bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'link'],
-        ['h2', 'h3', 'alignStart', 'alignCenter', 'alignEnd'],
+        ['h2', 'h3'],
+        ['alignStart', 'alignCenter', 'alignEnd'],
         ['blockquote', 'codeBlock', 'bulletList', 'orderedList'],
         ['table', 'attachFiles'], // The `customBlocks` and `mergeTags` tools are also added here if those features are used.
         ['undo', 'redo'],
@@ -73,6 +74,9 @@ Each nested array in the main array represents a group of buttons in the toolbar
 Additional tools available in the toolbar include:
 
 - `h1` - Applies the "h1" tag to the text.
+- `h4` - Applies the "h4" tag to the text.
+- `h5` - Applies the "h5" tag to the text.
+- `h6` - Applies the "h6" tag to the text.
 - `alignJustify` - Justifies the text.
 - `clearFormatting` - Clears all formatting from the selected text.
 - `details` - Inserts a `<details>` tag, which allows users to create collapsible sections in their content.
@@ -81,6 +85,7 @@ Additional tools available in the toolbar include:
 - `highlight` - Highlights the selected text with a `<mark>` tag around it.
 - `horizontalRule` - Inserts a horizontal rule.
 - `lead` - Applies a `lead` class around the text, which is typically used for the first paragraph of an article.
+- `paragraph` - Sets the current block to a paragraph, removing any heading formatting.
 - `small` - Applies the `<small>` tag to the text, which is typically used for small print or disclaimers.
 - `code` - Format the selected text as inline code.
 - `textColor` - Changes the [text color](#customizing-text-colors) of the selected text.
@@ -127,6 +132,66 @@ RichEditor::make('content')
         ],
     ])
 ```
+
+### Grouping toolbar buttons into dropdowns
+
+You may group related toolbar buttons into a dropdown menu using `ToolbarButtonGroup`. The first argument is a label used for the dropdown's tooltip and accessibility, and the second argument is an array of button names to include in the dropdown:
+
+```php
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
+
+RichEditor::make('content')
+    ->toolbarButtons([
+        ['bold', 'italic', 'underline', 'strike'],
+        [ToolbarButtonGroup::make('Paragraph', ['paragraph', 'h1', 'h2', 'h3'])],
+        [ToolbarButtonGroup::make('Alignment', ['alignStart', 'alignCenter', 'alignEnd', 'alignJustify'])],
+        ['blockquote', 'codeBlock', 'bulletList', 'orderedList'],
+        ['undo', 'redo'],
+    ])
+```
+
+By default, the first button's icon is used as the dropdown trigger, and it updates reactively to reflect the currently active button. Clicking on the trigger reveals the grouped buttons.
+
+You can set a fixed icon for the dropdown trigger using the `icon()` method. When a custom icon is set, the trigger icon remains static and does not change based on the active button:
+
+```php
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
+
+RichEditor::make('content')
+    ->toolbarButtons([
+        ['bold', 'italic', 'underline', 'strike'],
+        [ToolbarButtonGroup::make('Heading', ['h1', 'h2', 'h3'])->icon('fi-o-heading')],
+        [ToolbarButtonGroup::make('Alignment', ['alignStart', 'alignCenter', 'alignEnd', 'alignJustify'])],
+        ['blockquote', 'codeBlock', 'bulletList', 'orderedList'],
+        ['undo', 'redo'],
+    ])
+```
+
+<AutoScreenshot name="forms/fields/rich-editor/toolbar-button-group-open" alt="Rich editor with an open toolbar button group dropdown" version="4.x" />
+
+### Using textual dropdown toolbar buttons
+
+By default, dropdown toolbar buttons display icons only. If you'd like to show text labels alongside icons in the dropdown items, you can use the `textualButtons()` method on a `ToolbarButtonGroup`:
+
+```php
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
+
+RichEditor::make('content')
+    ->toolbarButtons([
+        ['bold', 'italic', 'underline', 'strike', 'link'],
+        [ToolbarButtonGroup::make('Paragraph', ['paragraph', 'h1', 'h2', 'h3'])->textualButtons()],
+        [ToolbarButtonGroup::make('Alignment', ['alignStart', 'alignCenter', 'alignEnd', 'alignJustify'])],
+        ['blockquote', 'codeBlock', 'bulletList', 'orderedList'],
+        ['undo', 'redo'],
+    ])
+```
+
+<AutoScreenshot name="forms/fields/rich-editor/textual-toolbar-button-group-open" alt="Rich editor with an open textual toolbar button group dropdown" version="4.x" />
+
+In this example, the `Paragraph` dropdown items display their icon alongside a text label (e.g., "Paragraph", "Heading 1"). The `Alignment` dropdown remains icon-only.
 
 ## Customizing text colors
 
@@ -289,6 +354,10 @@ When Filament outputs raw HTML from the database in components such as `TextColu
 ```
 
 If you're [storing content as JSON](#storing-content-as-json) instead of HTML, or your content requires processing to inject [private image URLs](#using-private-images-in-the-editor) or similar, you can use the [content renderer](#rendering-rich-content) to output HTML. This will automatically sanitize the HTML for you, so you don't need to worry about it.
+
+<Aside variant="danger">
+    Filament's built-in HTML sanitizer permits inline `style` attributes in order to support rich text formatting features such as font colors, text highlighting, and image sizing. This means that CSS properties like `background: url(...)` or `position: fixed` will not be stripped from sanitized HTML. If your content comes from untrusted users, you should consider implementing a more restrictive custom sanitizer. See the [security documentation](../advanced/security#html-sanitization) for details on how to customize the sanitizer.
+</Aside>
 
 ## Uploading images to the editor
 
@@ -724,7 +793,7 @@ RichContentRenderer::make($record->content)
 
 ## Registering rich content attributes
 
-There are elements of the rich editor configuration that apply to both the editor and the renderer. For example, if you are using [private images](#using-private-images-in-the-editor), [custom blocks](#using-custom-blocks), [merge tags](#using-merge-tags), [mentions](#using-mentions), or [plugins](#extending-the-rich-editor), you need to ensure that the same configuration is used in both places. To do this, Filament provides you with a way to register rich content attributes that can be used in both the editor and the renderer.
+There are elements of the rich editor configuration that apply to both the editor and the renderer. For example, if you are using [private images](#using-private-images-in-the-editor), [custom blocks](#using-custom-blocks), [merge tags](#using-merge-tags), [mentions](#using-mentions), or [plugins](#extending-the-rich-editor), you need to ensure that the same configuration is used in both places. To do this, Filament provides you with a way to register rich content attributes that can be used in both the editor and the renderer. If a plugin implements `HasFileAttachmentProvider`, the file attachment provider is automatically resolved from the plugin, so you do not need to call `fileAttachmentProvider()` on the attribute or on the renderer.
 
 To register rich content attributes on an Eloquent model, you should use the `InteractsWithRichContent` trait and implement the `HasRichContent` interface. This allows you to register the attributes in the `setUpRichContent()` method:
 
@@ -764,9 +833,9 @@ class Post extends Model implements HasRichContent
                         2 => 'John Smith',
                     ]),
             ])
-            ->textColors(
+            ->textColors([
                 'brand' => TextColor::make('Brand', '#0ea5e9', darkColor: '#38bdf8'),
-            )
+            ])
             ->customTextColors()
             ->plugins([
                 HighlightRichContentPlugin::make(),
@@ -947,6 +1016,50 @@ RichContentRenderer::make($record->content)
     ->plugins([
         HighlightRichContentPlugin::make(),
     ])
+```
+
+### Enabling or disabling toolbar buttons from a plugin
+
+By default, when a plugin provides tools via `getEditorTools()`, those tools are registered but not automatically shown in the toolbar. The user needs to manually add them using `toolbarButtons()` or `enableToolbarButtons()`.
+
+If you want your plugin to automatically enable or disable toolbar buttons, you can implement the `HasToolbarButtons` interface alongside `RichContentPlugin`. This is an optional, separate interface:
+
+```php
+use Filament\Forms\Components\RichEditor\Plugins\Contracts\HasToolbarButtons;
+use Filament\Forms\Components\RichEditor\Plugins\Contracts\RichContentPlugin;
+
+class HighlightRichContentPlugin implements RichContentPlugin, HasToolbarButtons
+{
+    // ... other methods ...
+
+    /**
+     * @return array<string | array<string | array<string>>>
+     */
+    public function getEnabledToolbarButtons(): array
+    {
+        return ['highlight', 'highlightWithCustomColor'];
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getDisabledToolbarButtons(): array
+    {
+        return [];
+    }
+}
+```
+
+The `getEnabledToolbarButtons()` method returns button names to add to the toolbar. The `getDisabledToolbarButtons()` method returns button names to remove from the toolbar.
+
+Plugin toolbar modifications are applied before user-level modifications. This means the user can always override the plugin's behavior using `enableToolbarButtons()` or `disableToolbarButtons()`:
+
+```php
+RichEditor::make('content')
+    ->plugins([
+        HighlightRichContentPlugin::make(),
+    ])
+    ->disableToolbarButtons(['highlightWithCustomColor'])
 ```
 
 ### Setting up a TipTap JavaScript extension

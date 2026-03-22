@@ -575,6 +575,10 @@ TextColumn::make('title')
     ->openUrlInNewTab()
 ```
 
+<Aside variant="danger">
+    If you are passing user-controlled data to the `url()` method, you should validate that the URL does not use a dangerous scheme such as `javascript:` or `data:`. Failing to do so could expose your application to XSS attacks.
+</Aside>
+
 ### Triggering actions
 
 To run a function when a cell is clicked, you may use the `action()` method. Each method accepts a `$record` parameter which you may use to customize the behavior of the action:
@@ -893,9 +897,29 @@ public function table(Table $table): Table
 }
 ```
 
-#### Customizing the column manager dropdown trigger action
+#### Displaying the column manager in a modal
 
-To customize the column manager dropdown trigger button, you may use the `columnManagerTriggerAction()` method, passing a closure that returns an action. All methods that are available to [customize action trigger buttons](../../actions/overview) can be used:
+To render the column manager in a modal instead of in a dropdown, you may use the `columnManagerLayout()` method:
+
+```php
+use Filament\Tables\Enums\ColumnManagerLayout;
+use Filament\Tables\Table;
+
+public function table(Table $table): Table
+{
+    return $table
+        ->columns([
+            // ...
+        ])
+        ->columnManagerLayout(ColumnManagerLayout::Modal);
+}
+```
+
+You may use the [trigger action API](#customizing-the-column-manager-trigger-action) to [customize the modal](../../actions/modals), including [using a `slideOver()`](../../actions/modals#using-a-slide-over-instead-of-a-modal).
+
+#### Customizing the column manager trigger action
+
+To customize the column manager trigger button, you may use the `columnManagerTriggerAction()` method, passing a closure that returns an action. All methods that are available to [customize action trigger buttons](../../actions/overview) can be used:
 
 ```php
 use Filament\Actions\Action;
@@ -904,7 +928,7 @@ use Filament\Tables\Table;
 public function table(Table $table): Table
 {
     return $table
-        ->filters([
+        ->columns([
             // ...
         ])
         ->columnManagerTriggerAction(

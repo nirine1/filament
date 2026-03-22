@@ -951,6 +951,39 @@ export default {
             deviceScaleFactor: 3,
         },
     },
+    'forms/fields/rich-editor/toolbar-button-group-open': {
+        url: 'forms/fields',
+        selector: '#richEditorToolbarButtonGroup',
+        viewport: {
+            width: 1920,
+            height: 640,
+            deviceScaleFactor: 3,
+        },
+        before: async (page) => {
+            const triggers = await page.$$('#richEditorToolbarButtonGroup .fi-fo-rich-editor-dropdown-tool-trigger')
+            await triggers[1].click()
+            await page.waitForSelector('#richEditorToolbarButtonGroup .fi-fo-rich-editor-dropdown-tool-menu')
+            await page.mouse.move(0, 0)
+            await page.evaluate(() => document.activeElement.blur())
+            await new Promise((resolve) => setTimeout(resolve, 500))
+        },
+    },
+    'forms/fields/rich-editor/textual-toolbar-button-group-open': {
+        url: 'forms/fields',
+        selector: '#richEditorTextualToolbarButtonGroup',
+        viewport: {
+            width: 1920,
+            height: 800,
+            deviceScaleFactor: 3,
+        },
+        before: async (page) => {
+            await page.click('#richEditorTextualToolbarButtonGroup .fi-fo-rich-editor-dropdown-tool-trigger')
+            await page.waitForSelector('#richEditorTextualToolbarButtonGroup .fi-fo-rich-editor-dropdown-tool-menu')
+            await page.mouse.move(0, 0)
+            await page.evaluate(() => document.activeElement.blur())
+            await new Promise((resolve) => setTimeout(resolve, 500))
+        },
+    },
     'forms/fields/markdown-editor/simple': {
         url: 'forms/fields',
         selector: '#markdownEditor',
@@ -1802,6 +1835,15 @@ export default {
     'schemas/layout/callout/footer': {
         url: 'schemas/layout',
         selector: '#calloutFooter',
+        viewport: {
+            width: 1920,
+            height: 320,
+            deviceScaleFactor: 3,
+        },
+    },
+    'schemas/layout/callout/control-actions': {
+        url: 'schemas/layout',
+        selector: '#calloutControlActions',
         viewport: {
             width: 1920,
             height: 320,
